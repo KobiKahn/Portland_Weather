@@ -3,14 +3,14 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="$USER_HOME$/PycharmProjects/Portland_Weather/Jacob Kahn - All_Months_PCP_1895_2022_1.csv">
+        <entry key="/Precipitation.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="$USER_HOME$/PycharmProjects/Portland_Weather/Jacob Kahn - All_Months_Temp_1895_2022.csv">
+        <entry key="/Temp.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
