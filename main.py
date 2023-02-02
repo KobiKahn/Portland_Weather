@@ -33,11 +33,11 @@ pcp_df = pd.read_csv('Precipitation.csv')
 pcp_df.set_index(temp_df['Date'], inplace=True)
 
 
-# temp_df.drop(temp_df[temp_df < 0])
-# for col_name in temp_df.iloc[:, 1:]:
-temp_df.drop(temp_df[temp_df == -99.0], axis=1)
+temp_df[temp_df == -99] = np.NaN     # set all values that meet the condition to NaN
+temp_df.dropna(axis = 0, inplace=True)             # remove the rows (axis=1) that have NaN in them
 
-print(temp_df)
+pcp_df[pcp_df == -99] = np.NaN     # set all values that meet the condition to NaN
+pcp_df.dropna(axis = 0, inplace=True)             # remove the rows (axis=1) that have NaN in them
 
 # GRAPH DATA
 def graph_base_data(dict, year, month=None):
@@ -53,9 +53,9 @@ def graph_base_data(dict, year, month=None):
     plt.bar(x_data, y_data)
     plt.xticks(rotation=90)
     plt.show()
-
-# graph_base_data(temp_df, 2022)
-# graph_base_data(temp_df, 0, 'February Temp(F)')
+#
+# graph_base_data(temp_df, 2021)
+# graph_base_data(temp_df, 0, 'December Temp(F)')
 
 # graph_base_data(pcp_df, 2015)
 # graph_base_data(pcp_df, 0, 'February Inches')
@@ -64,9 +64,17 @@ def graph_base_data(dict, year, month=None):
 
 def find_stats(dict, year, month=None):
     if year != 0:
+        mon_list = []
         for mon in dict.loc[year][1:]:
+            mon_list.append(mon)
+        mon_mean = mean(mon_list)
+        mon_med = median(mon_list)
+        mon_std = stand_dev(mon_list)
+        mon_max = max(mon_list)
+        mon_min = min(mon_list)
+        return(mon_mean, mon_med, mon_std, mon_max, mon_min)
 
-            print(mon)
-        # mean_list =
-
-# find_stats(temp_df, 1895)
+temp_dict = {}
+for year in temp_df.iloc[:, 0]:
+    temp_dict[year] = find_stats(temp_df, year)
+print(temp_dict)
