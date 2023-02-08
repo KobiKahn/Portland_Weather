@@ -32,8 +32,8 @@ temp_dict = {}
 temp_dict['Mean_M'] = list(round(temp_df.loc[:,'Jan':'Dec'].mean(axis=0), 1))
 temp_dict['Med_M'] = list(round(temp_df.loc[:,'Jan':'Dec'].median(axis = 0), 1))
 temp_dict['Std_M'] = list(round(temp_df.loc[:,'Jan':'Dec'].std(axis = 0), 1))
-temp_dict['Max_M'] = list(round(temp_df.loc[:,'Jan':'Dec'].max(axis = 0), 1))
-temp_dict['Min_M'] = list(round(temp_df.loc[:,'Jan':'Dec'].min(axis = 0), 1))
+temp_dict['Max_M'] = list(temp_df.loc[:,'Jan':'Dec'].max(axis = 0))
+temp_dict['Min_M'] = list(temp_df.loc[:,'Jan':'Dec'].min(axis = 0))
 
 # DO TEMP STATS FOR EACH YEAR
 temp_dict['Mean_Y'] = list(round(temp_df.loc[:,'Jan':'Dec'].mean(axis=1), 1))
@@ -79,15 +79,15 @@ def graph_base_data(title, df, year, month=None):
 
 
 # graph_base_data('Temps for 2021', temp_df, 2021)
-# graph_base_data('Temps for December', temp_df, 0, 'Dec')
+# graph_base_data('Temps for July', temp_df, 0, 'Jul')
 # #
 # graph_base_data('PRCP for 2015', pcp_df, 2015)
 # graph_base_data('PRCP for Feb',pcp_df, 0, 'Feb')
 
 
-def graph_stats(dict, title, option=0):
+def graph_stats(dict, title, df, option=0):
     if option==0:
-        x_data = temp_df.index
+        x_data = df.index
 
         mean_list = dict['Mean_Y']
         med_list = dict['Med_Y']
@@ -101,12 +101,44 @@ def graph_stats(dict, title, option=0):
         plt.legend(['MAX', 'MED', 'MEAN', 'MIN'])
 
     elif option==1:
-        x_data = list(temp_df.loc[0:1,'Jan':'Dec'])
+        counter = 0
+        x_data = list(df.loc[0:1,'Jan':'Dec'])
+        y_max = []
+        y_min = []
+        # GET MAX AND MIN LISTS
+        for month in x_data:
+            y_max.append(list(df.loc[df[f'{month}'] == dict['Max_M'][counter]].index))
+            y_min.append(list(df.loc[df[f'{month}'] == dict['Min_M'][counter]].index))
+            counter += 1
 
+        # CLEAN UP MAX LIST
+        counter = 0
+        for date in y_max:
+            if len(date) > 1:
+                y_max[counter] = max(date)
+            counter += 1
+        # CLEAN UP MIN LIST
+        counter = 0
+        for date in y_min:
+            if len(date) > 1:
+                y_min[counter] = min(date)
+            counter += 1
 
+        print(y_max)
+        print()
+        print(y_min)
+
+        plt.bar(x_data, y_max, .5, color='pink')
+        plt.bar(x_data, y_min, .3, color='aquamarine')
+        plt.legend(['MAX', 'MIN'])
 
     plt.title(title)
     plt.show()
 
-graph_stats(temp_dict, 'STATS FOR ALL YEARS')
-# print(temp_dict['Med'])
+# graph_stats(temp_dict, 'STATS FOR ALL TEMP YEARS', temp_df)
+graph_stats(temp_dict, 'MAX AND MIN FOR MONTHS', temp_df, 1)
+print(temp_dict)
+
+
+
+
