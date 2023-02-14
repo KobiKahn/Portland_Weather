@@ -61,36 +61,105 @@ pcp_dict['Min_Y'] = list(pcp_df.loc[:,'Jan':'Dec'].min(axis = 1))
 
 
 # FUNCTIONS
+
+def cal_corr(list1, list2, option=0):
+    if len(list1) == len(list2):
+        i = -1
+        prod_list = []
+        min_sqr1 = []
+        min_sqr2 = []
+        for val in list1:
+            i += 1
+            prod_list.append(list1[i] * list2[i])
+            min_sqr1.append(list1[i] ** 2)
+            min_sqr2.append(list2[i] ** 2)
+
+        numerator = ((len(list1) * sum(prod_list)) - (sum(list1) * sum(list2)))
+        denominator = (math.sqrt(len(list1) * sum(min_sqr1) - sum(list1) ** 2) * math.sqrt(len(list2) * sum(min_sqr2) - sum(list2) ** 2))
+        denominator = denominator.real
+        correlation = numerator / denominator
+        if option == 0:
+            return (correlation)
+        elif option == 1:
+            return (sum(list1), sum(list2), sum(prod_list), sum(min_sqr1), len(list1))
+    else:
+        print('ERROR LISTS ARE NOT THE SAME LENGTH CANT COMPUTE')
+        return False
+
+def LSC(list1, list2):
+    x_sum, y_sum, prod_sum, xsqr_sum, list_len = cal_corr(list1, list2, 1)
+    matrix1 = [[xsqr_sum, x_sum], [x_sum, list_len]]
+    matrix2 = [prod_sum, y_sum]
+    matrix1 = np.array(matrix1)
+    matrix2 = np.array(matrix2)
+    inv_mat1 = np.linalg.inv(matrix1)
+    solution = np.dot(inv_mat1, matrix2)
+    # a = slope b = y int
+    a = solution[0]
+    b = solution[1]
+    return(a, b)
+
 # MOVING FILTERS
-def weight_avg_fil(f_list, f_len, w_list):
+def weight_avg_fil(f_list, w_len):
     output = []
+    w_list = [1 for i in range(w_len)]
     for i in range(len(f_list)):
-        if i <= len(f_list) - f_len:
+        if i <= len(f_list) - w_len:
             min_list = []
             min_list2 = []
-            for j in range(f_len):
+            for j in range(w_len):
                 min_list.append(f_list[i + j])
-
-            for k in range(len(min_list)):
+            for k in range(w_len):
                 min_list2.append(min_list[k] * w_list[k])
-
             output.append(sum(min_list2)/sum(w_list))
     return(output)
 
-
-def fade_avg_fil(f_list, w_list):
-    output = []
-    w1, w2 = w_list[0], w_list[1]
-    if sum(w_list) == 1:
-        for i in range(len(f_list)):
-            if i == 0:
-                output.append(f_list[i])
-            else:
-                output.append( (w1 * output[i-1]) + (w2 * f_list[i]))
-    return(output)
-
+# FIND ESTIMATES OF FUTURE TIMES
+def calc_future(m, b, year):
+    y = m * (year) + b
+    return(y)
 
 # GRAPH DATA
+def graph_avg_weight(title, vals, df, w_len, option=0):
+    x_data = df.index
+    y_data = vals
+    avg_list = weight_avg_fil(y_data, w_len)
+    mov_x_data = df.index.values[9:-10]
+
+    if option == 0:
+        LSC_avg = avg_list[-30:-10]
+        LSC_x = mov_x_data[-30:-10]
+    else:
+        LSC_avg = avg_list[-20:-10]
+        LSC_x = mov_x_data[-20:-10]
+
+    slope, y_int = LSC(LSC_x, LSC_avg)
+
+    plt.plot(x_data, y_data)
+    plt.plot(mov_x_data, avg_list, color='r')
+    plt.title(title)
+    plt.xticks(rotation=90)
+    plt.show()
+    return(slope, y_int)
+
+slope, y_int = graph_avg_weight('TEMP MEAN FOR EVERY YEAR', temp_dict['Mean_Y'], temp_df, 20)
+est_2025 = calc_future(slope, y_int, 2025)
+est_2030 = calc_future(slope, y_int, 2030)
+est_2035 = calc_future(slope, y_int, 2035)
+print(est_2025, est_2030, est_2035)
+
+# graph_avg_weight('TEMP MED FOR EVERY YEAR', temp_dict['Med_Y'], temp_df, 20)
+# graph_avg_weight('TEMP MIN FOR EVERY YEAR', temp_dict['Min_Y'], temp_df, 20)
+# graph_avg_weight('TEMP MAX FOR EVERY YEAR', temp_dict['Max_Y'], temp_df, 20)
+#
+#
+# graph_avg_weight('PCRP MEAN FOR EVERY YEAR', pcp_dict['Mean_Y'], pcp_df, 20, 1)
+# graph_avg_weight('PCRP MED FOR EVERY YEAR', pcp_dict['Med_Y'], pcp_df, 20, 1)
+# graph_avg_weight('PCRP MIN FOR EVERY YEAR', pcp_dict['Min_Y'], pcp_df, 20, 1)
+# graph_avg_weight('PCRP MAX FOR EVERY YEAR', pcp_dict['Max_Y'], pcp_df, 20, 1)
+
+
+
 def graph_base_data(title, df, year, month=None):
     if year != 0:
         x_data = list(df.loc[0:1,'Jan':'Dec'])
