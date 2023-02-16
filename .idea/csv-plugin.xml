@@ -17,6 +17,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="$USER_HOME$/PycharmProjects/NLP /All_Months_PCP_1895_2022_1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>

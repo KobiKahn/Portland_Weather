@@ -60,7 +60,10 @@ pcp_dict['Min_Y'] = list(pcp_df.loc[:,'Jan':'Dec'].min(axis = 1))
 
 
 
-# FUNCTIONS
+########### FUNCTIONS ############
+########### FUNCTIONS ############
+########### FUNCTIONS ############
+########### FUNCTIONS ############
 
 def cal_corr(list1, list2, option=0):
     if len(list1) == len(list2):
@@ -85,6 +88,8 @@ def cal_corr(list1, list2, option=0):
     else:
         print('ERROR LISTS ARE NOT THE SAME LENGTH CANT COMPUTE')
         return False
+
+
 
 def LSC(list1, list2):
     x_sum, y_sum, prod_sum, xsqr_sum, list_len = cal_corr(list1, list2, 1)
@@ -142,23 +147,6 @@ def graph_avg_weight(title, vals, df, w_len, option=0):
     plt.show()
     return(slope, y_int)
 
-slope, y_int = graph_avg_weight('TEMP MEAN FOR EVERY YEAR', temp_dict['Mean_Y'], temp_df, 20)
-est_2025 = calc_future(slope, y_int, 2025)
-est_2030 = calc_future(slope, y_int, 2030)
-est_2035 = calc_future(slope, y_int, 2035)
-print(est_2025, est_2030, est_2035)
-
-# graph_avg_weight('TEMP MED FOR EVERY YEAR', temp_dict['Med_Y'], temp_df, 20)
-# graph_avg_weight('TEMP MIN FOR EVERY YEAR', temp_dict['Min_Y'], temp_df, 20)
-# graph_avg_weight('TEMP MAX FOR EVERY YEAR', temp_dict['Max_Y'], temp_df, 20)
-#
-#
-# graph_avg_weight('PCRP MEAN FOR EVERY YEAR', pcp_dict['Mean_Y'], pcp_df, 20, 1)
-# graph_avg_weight('PCRP MED FOR EVERY YEAR', pcp_dict['Med_Y'], pcp_df, 20, 1)
-# graph_avg_weight('PCRP MIN FOR EVERY YEAR', pcp_dict['Min_Y'], pcp_df, 20, 1)
-# graph_avg_weight('PCRP MAX FOR EVERY YEAR', pcp_dict['Max_Y'], pcp_df, 20, 1)
-
-
 
 def graph_base_data(title, df, year, month=None):
     if year != 0:
@@ -174,13 +162,6 @@ def graph_base_data(title, df, year, month=None):
     plt.title(title)
     plt.xticks(rotation=90)
     plt.show()
-
-#
-# graph_base_data('Temps for 2021', temp_df, 2021)
-# graph_base_data('Temps for Jan', temp_df, 0, 'Jan')
-# graph_base_data('PRCP for 2015', pcp_df, 2015)
-# graph_base_data('PRCP for Feb',pcp_df, 0, 'Feb')
-
 
 def graph_stats(dict, title, df, option=0):
     if option==0:
@@ -239,6 +220,69 @@ def graph_stats(dict, title, df, option=0):
 
     plt.title(title)
     plt.show()
+
+
+
+
+########### CALLING THE FUNCTIONS ############
+
+temp_avg_mean = weight_avg_fil(temp_dict['Mean_Y'], 20)
+pcp_avg_mean = weight_avg_fil(pcp_dict['Mean_Y'], 20)
+
+mov_x_data = temp_df.index.values[9:-10]
+temp_mean_df = pd.DataFrame(temp_avg_mean)
+temp_mean_df.set_index(mov_x_data, inplace=True)
+
+
+temp_span1 = temp_mean_df.loc[1904:1942].values.tolist()
+temp_span2 = temp_mean_df.loc[1943:1979].values.tolist()
+temp_span3 = temp_mean_df.loc[1980:].values.tolist()
+temp_span1 = [i.strip('[]') if type(i) == str else str(i) for i in temp_span1]
+temp_span1 = [i.strip('[]') for i in temp_span1]
+temp_span1 = [float(i) for i in temp_span1]
+temp_span2 = [i.strip('[]') if type(i) == str else str(i) for i in temp_span2]
+temp_span2 = [i.strip('[]') for i in temp_span2]
+temp_span2 = [float(i) for i in temp_span2]
+temp_span3 = [i.strip('[]') if type(i) == str else str(i) for i in temp_span3]
+temp_span3 = [i.strip('[]') for i in temp_span3]
+temp_span3 = [float(i) for i in temp_span3]
+
+year_span1 = temp_mean_df.loc[1904:1942].index.tolist()
+year_span2 = temp_mean_df.loc[1943:1979].index.tolist()
+year_span3 = temp_mean_df.loc[1980:].index.tolist()
+
+correlation1 = cal_corr(temp_span1, year_span1)
+correlation2 = cal_corr(temp_span2, year_span2)
+correlation3 = cal_corr(temp_span3, year_span3)
+
+temp_prcp_corr = cal_corr(temp_avg_mean, pcp_avg_mean)
+
+print(correlation1)
+print(correlation2)
+print(correlation3)
+print(temp_prcp_corr)
+
+# slope, y_int = graph_avg_weight('TEMP MEAN FOR EVERY YEAR', temp_dict['Mean_Y'], temp_df, 20)
+# graph_avg_weight('TEMP MED FOR EVERY YEAR', temp_dict['Med_Y'], temp_df, 20)
+# graph_avg_weight('TEMP MIN FOR EVERY YEAR', temp_dict['Min_Y'], temp_df, 20)
+# graph_avg_weight('TEMP MAX FOR EVERY YEAR', temp_dict['Max_Y'], temp_df, 20)
+
+# graph_avg_weight('PCRP MEAN FOR EVERY YEAR', pcp_dict['Mean_Y'], pcp_df, 20, 1)
+# graph_avg_weight('PCRP MED FOR EVERY YEAR', pcp_dict['Med_Y'], pcp_df, 20, 1)
+# graph_avg_weight('PCRP MIN FOR EVERY YEAR', pcp_dict['Min_Y'], pcp_df, 20, 1)
+# graph_avg_weight('PCRP MAX FOR EVERY YEAR', pcp_dict['Max_Y'], pcp_df, 20, 1)
+
+# est_2030 = calc_future(slope, y_int, 2030)
+# est_2035 = calc_future(slope, y_int, 2035)
+# print(est_2025, est_2030, est_2035)
+# est_2025 = calc_future(slope, y_int, 2025)
+
+
+# graph_base_data('Temps for 2021', temp_df, 2021)
+# graph_base_data('Temps for Jan', temp_df, 0, 'Jan')
+# graph_base_data('PRCP for 2015', pcp_df, 2015)
+# graph_base_data('PRCP for Feb',pcp_df, 0, 'Feb')
+
 
 # graph_stats(temp_dict, 'STATS FOR ALL TEMP YEARS', temp_df)
 # graph_stats(temp_dict, 'MAX AND MIN FOR TEMP MONTHS', temp_df, 1)
